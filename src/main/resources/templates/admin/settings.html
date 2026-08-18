@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - CodeGuardian AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <link rel="stylesheet" th:href="@{/css/settings.css}">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Main Sidebar (Icons) -->
+        <aside class="sidebar">
+            <div class="logo"><i class="fas fa-shield-alt"></i></div>
+            <ul class="sidebar-menu">
+                <li><a href="/dashboard" title="Dashboard"><i class="fas fa-chart-pie"></i></a></li>
+                <li th:if="${canReview or canQuery}"><a href="/review" title="Search"><i class="fas fa-search"></i></a></li>
+                <li th:if="${canQuery}"><a href="/review/reports" title="Tasks"><i class="fas fa-file-lines"></i></a></li>
+                <li th:if="${canAdmin}"><a href="/admin/users" title="Access Control"><i class="fas fa-user-shield"></i></a></li>
+                <li th:if="${canAdmin}"><a href="/admin/knowledge" title="Knowledge Base"><i class="fas fa-book"></i></a></li>
+                <li th:if="${canConfig}"><a href="/admin/settings" class="active" title="Settings"><i class="fas fa-cog"></i></a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content Area with Secondary Sidebar -->
+        <main class="main-content settings-layout" style="margin: 0; display: flex; flex-direction: column;">
+            
+            <!-- Top Header -->
+            <header class="top-header">
+                <h1 class="page-title">Settings</h1>
+                <div class="user-section">
+                    <div class="user-info">
+                        <span class="user-label" th:text="${roleName ?: 'System Administrator'}">System Administrator</span>
+                        <span class="username" th:text="${username ?: 'ADMIN'}">ADMIN</span>
+                    </div>
+                    <div class="user-avatar" id="user-avatar" th:text="${avatarChar ?: 'A'}">A</div>
+                    <a href="/api/auth/logout" class="logout-btn" style="text-decoration: none;">
+                        <i class="fas fa-sign-out-alt"></i> Log out
+                    </a>
+                </div>
+            </header>
+
+            <!-- Content Wrapper -->
+            <div class="content-wrapper">
+                <!-- Secondary Sidebar (Submenu Panel) -->
+                <aside class="submenu-panel">
+                    <nav class="submenu-nav">
+                        <a href="#general" class="submenu-item active">
+                            <i class="fas fa-sliders-h"></i>
+                            <span>General</span>
+                        </a>
+                        <a href="#rules" class="submenu-item">
+                            <i class="fas fa-gavel"></i>
+                            <span>Rules</span>
+                        </a>
+                        <a href="#scope" class="submenu-item">
+                            <i class="fas fa-filter"></i>
+                            <span>Scope &amp; Ignore</span>
+                        </a>
+                        <a href="#visualization" class="submenu-item">
+                            <i class="fas fa-chart-bar"></i>
+                            <span>Visualization</span>
+                        </a>
+                        <a href="#behavior" class="submenu-item">
+                            <i class="fas fa-robot"></i>
+                            <span>Behavior</span>
+                        </a>
+                        <a href="#import" class="submenu-item">
+                            <i class="fas fa-file-import"></i>
+                            <span>Import / Export</span>
+                        </a>
+                    </nav>
+                </aside>
+
+                <!-- Settings Content Scrollable -->
+                <div class="content-panel">
+                    <div class="settings-content" style="height: 100%; overflow-y: auto; padding-right: 10px;">
+                        
+                        <!-- General Section -->
+                        <div id="general" class="settings-section">
+                            <h3 class="section-title">General</h3>
+                            <div class="form-text">Choose the project root (used for directory and project reviews). Only relative paths can be read in the browser sandbox.</div>
+
+                            <div class="file-input-wrapper">
+                                <input type="text" id="project-root" class="input-dark" style="width: 100%; padding: 8px;" placeholder="Enter the project root path" th:value="${settings.projectRoot}">
+                            </div>
+
+                            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                                <button type="button" class="btn btn-primary" onclick="saveSettings()">Save settings</button>
+                                <button type="button" class="btn" onclick="location.reload()">Restore defaults</button>
+                            </div>
+                        </div>
+
+                        <!-- Rules Section -->
+                        <div id="rules" class="settings-section">
+                            <h3 class="section-title">Rules</h3>
+
+                            <div class="rules-grid">
+                                <!-- Categories -->
+                                <div class="rule-categories">
+                                    <div class="form-label" style="margin-bottom: 12px;">Enabled rule categories</div>
+                                    <label class="checkbox-item"><input type="checkbox" id="rule-cat-security" th:checked="${settings.ruleCategories['security']}"> Security</label>
+                                    <label class="checkbox-item"><input type="checkbox" id="rule-cat-performance" th:checked="${settings.ruleCategories['performance']}"> Performance</label>
+                                    <label class="checkbox-item"><input type="checkbox" id="rule-cat-maintainability" th:checked="${settings.ruleCategories['maintainability']}"> Maintainability</label>
+                                    <label class="checkbox-item"><input type="checkbox" id="rule-cat-style" th:checked="${settings.ruleCategories['style']}"> Code Style</label>
+                                    <label class="checkbox-item"><input type="checkbox" id="rule-cat-logic_error" th:checked="${settings.ruleCategories['logic_error']}"> Logic Error</label>
+                                </div>
+
+                                <!-- Weights -->
+                                <div class="rule-weights">
+                                    <div class="form-label" style="margin-bottom: 8px;">Rule weights (0-100)</div>
+
+                                    <div class="weight-item">
+                                        <span class="weight-label">Security</span>
+                                        <input type="range" class="range-slider" id="rule-weight-security" min="0" max="100" th:value="${settings.ruleWeights['security']}">
+                                        <span class="weight-value" th:text="${settings.ruleWeights['security']}"></span>
+                                    </div>
+                                    <div class="weight-item">
+                                        <span class="weight-label">Performance</span>
+                                        <input type="range" class="range-slider" id="rule-weight-performance" min="0" max="100" th:value="${settings.ruleWeights['performance']}">
+                                        <span class="weight-value" th:text="${settings.ruleWeights['performance']}"></span>
+                                    </div>
+                                    <div class="weight-item">
+                                        <span class="weight-label">Maintainability</span>
+                                        <input type="range" class="range-slider" id="rule-weight-maintainability" min="0" max="100" th:value="${settings.ruleWeights['maintainability']}">
+                                        <span class="weight-value" th:text="${settings.ruleWeights['maintainability']}"></span>
+                                    </div>
+                                    <div class="weight-item">
+                                        <span class="weight-label">Code Style</span>
+                                        <input type="range" class="range-slider" id="rule-weight-style" min="0" max="100" th:value="${settings.ruleWeights['style']}">
+                                        <span class="weight-value" th:text="${settings.ruleWeights['style']}"></span>
+                                    </div>
+                                    <div class="weight-item">
+                                        <span class="weight-label">Logic Error</span>
+                                        <input type="range" class="range-slider" id="rule-weight-logic_error" min="0" max="100" th:value="${settings.ruleWeights['logic_error']}">
+                                        <span class="weight-value" th:text="${settings.ruleWeights['logic_error']}"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Rule Presets -->
+                            <div class="select-row">
+                                <div style="display: flex; flex-direction: column; gap: 5px;">
+                                    <span class="form-label">Coding standard</span>
+                                    <select class="custom-select" id="rule-standard">
+                                        <option value="alibaba" th:selected="${settings.ruleStandard == 'alibaba'}">Alibaba Java Standard</option>
+                                        <option value="google" th:selected="${settings.ruleStandard == 'google'}">Google Java Style</option>
+                                        <option value="airbnb" th:selected="${settings.ruleStandard == 'airbnb'}">Airbnb JS/TS Standard</option>
+                                        <option value="pep8" th:selected="${settings.ruleStandard == 'pep8'}">PEP8 Python Standard</option>
+                                    </select>
+                                </div>
+
+                                <div style="display: flex; flex-direction: column; gap: 5px;">
+                                    <span class="form-label">Preset</span>
+                                    <select class="custom-select" id="rule-preset">
+                                        <option value="professional" th:selected="${settings.rulePreset == 'professional'}">Professional Security</option>
+                                        <option value="general" th:selected="${settings.rulePreset == 'general'}">General Standard</option>
+                                    </select>
+                                </div>
+
+                                <button type="button" class="btn" style="margin-top: 24px;" onclick="saveSettings()">Apply preset</button>
+                            </div>
+                        </div>
+
+                        <!-- Scope Section -->
+                        <div id="scope" class="settings-section">
+                            <h3 class="section-title">Scope &amp; Ignore</h3>
+
+                            <div class="scope-grid">
+                                <div>
+                                    <label class="form-label">Include paths (one per line, substring match)</label>
+                                    <textarea class="textarea-dark" id="scope-includes" placeholder="e.g. \nsrc/\napp/\nservices/" th:text="${settings.includePaths}"></textarea>
+                                </div>
+                                <div>
+                                    <label class="form-label">Ignore paths (one per line, substring match)</label>
+                                    <textarea class="textarea-dark" id="scope-excludes" placeholder="e.g. \nnode_modules/\ntarget/\ndist/\n.git/\n.idea/\n*.log\n.DS_Store" th:text="${settings.excludePaths}"></textarea>
+                                </div>
+                            </div>
+                            <button type="button" class="btn" style="margin-top: 15px;" onclick="saveSettings()">Save scope</button>
+                        </div>
+
+                        <!-- Visualization Section -->
+                        <div id="visualization" class="settings-section">
+                            <h3 class="section-title">Visualization</h3>
+
+                            <div class="input-row">
+                                <span class="weight-label">Health chart height (px)</span>
+                                <input type="number" class="input-dark" id="vis-chart-height" th:value="${settings.chartHeight}">
+                            </div>
+                            <div class="input-row">
+                                <span class="weight-label">Health ring thickness (%)</span>
+                                <input type="number" class="input-dark" id="vis-ring-thickness" th:value="${settings.ringThickness}">
+                            </div>
+                            <button type="button" class="btn" onclick="saveSettings()">Apply to dashboard</button>
+                        </div>
+
+                        <!-- Behavior Section -->
+                        <div id="behavior" class="settings-section">
+                            <h3 class="section-title">Behavior</h3>
+
+                            <div class="input-row">
+                                <span class="weight-label">Max issues shown</span>
+                                <input type="number" class="input-dark" id="behavior-max-issues" th:value="${settings.maxIssues}">
+                            </div>
+                            <div class="input-row">
+                                <span class="weight-label">Animation interval (ms)</span>
+                                <input type="number" class="input-dark" id="behavior-animation" th:value="${settings.animationInterval}">
+                            </div>
+                            <button type="button" class="btn" onclick="saveSettings()">Save behavior settings</button>
+                        </div>
+
+                        <!-- Import/Export Section -->
+                        <div id="import" class="settings-section">
+                            <h3 class="section-title">Import / Export</h3>
+
+                            <div style="display: flex; gap: 10px;">
+                                <button type="button" class="btn" onclick="exportSettings()">Export settings</button>
+                                <button type="button" class="btn" onclick="triggerImport()">Import settings</button>
+                                <input type="file" id="importFile" style="display: none" accept=".json" onchange="importSettings(this)">
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let isManualNavigation = false;
+        let timeoutId;
+
+        // Simple navigation handling
+        document.querySelectorAll('.submenu-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                isManualNavigation = true;
+                if (timeoutId) clearTimeout(timeoutId);
+                
+                // Update active state
+                document.querySelectorAll('.submenu-item').forEach(nav => nav.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Scroll to section
+                const targetId = this.getAttribute('href').substring(1);
+                const targetSection = document.getElementById(targetId);
+                if (targetSection) {
+                    targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+
+                // Reset flag after animation
+                timeoutId = setTimeout(() => {
+                    isManualNavigation = false;
+                }, 1000);
+            });
+        });
+
+        // Sync scroll to active nav item (Intersection Observer)
+        const observerOptions = {
+            root: document.querySelector('.settings-content'),
+            threshold: 0.1,
+            rootMargin: "-10px 0px -70% 0px"
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            if (isManualNavigation) return;
+
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const id = entry.target.id;
+                    updateActiveNav(id);
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.settings-section').forEach(section => {
+            observer.observe(section);
+        });
+
+        // Handle bottom of page
+        const contentPanel = document.querySelector('.settings-content');
+        if (contentPanel) {
+            contentPanel.addEventListener('scroll', () => {
+                 if (isManualNavigation) return;
+                 if (contentPanel.scrollHeight - contentPanel.scrollTop <= contentPanel.clientHeight + 20) {
+                     const sections = document.querySelectorAll('.settings-section');
+                     if (sections.length > 0) {
+                         const lastId = sections[sections.length - 1].id;
+                         updateActiveNav(lastId);
+                     }
+                 }
+            });
+        }
+
+        function updateActiveNav(id) {
+             document.querySelectorAll('.submenu-item').forEach(nav => {
+                 if (nav.getAttribute('href') === '#' + id) {
+                     document.querySelectorAll('.submenu-item').forEach(n => n.classList.remove('active'));
+                     nav.classList.add('active');
+                 }
+             });
+        }
+
+        // Update range slider values display
+        document.querySelectorAll('.range-slider').forEach(slider => {
+            slider.addEventListener('input', function() {
+                this.nextElementSibling.textContent = this.value;
+            });
+        });
+
+        // Save Settings Function
+        function saveSettings() {
+            const data = {
+                projectRoot: document.getElementById('project-root').value,
+                
+                ruleCategories: {
+                    security: document.getElementById('rule-cat-security').checked,
+                    performance: document.getElementById('rule-cat-performance').checked,
+                    maintainability: document.getElementById('rule-cat-maintainability').checked,
+                    style: document.getElementById('rule-cat-style').checked,
+                    logic_error: document.getElementById('rule-cat-logic_error').checked
+                },
+                
+                ruleWeights: {
+                    security: parseInt(document.getElementById('rule-weight-security').value),
+                    performance: parseInt(document.getElementById('rule-weight-performance').value),
+                    maintainability: parseInt(document.getElementById('rule-weight-maintainability').value),
+                    style: parseInt(document.getElementById('rule-weight-style').value),
+                    logic_error: parseInt(document.getElementById('rule-weight-logic_error').value)
+                },
+                
+                ruleStandard: document.getElementById('rule-standard').value,
+                rulePreset: document.getElementById('rule-preset').value,
+                
+                includePaths: document.getElementById('scope-includes').value,
+                excludePaths: document.getElementById('scope-excludes').value,
+                
+                chartHeight: parseInt(document.getElementById('vis-chart-height').value),
+                ringThickness: parseInt(document.getElementById('vis-ring-thickness').value),
+                
+                maxIssues: parseInt(document.getElementById('behavior-max-issues').value),
+                animationInterval: parseInt(document.getElementById('behavior-animation').value)
+            };
+
+            fetch('/admin/settings/save', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            .then(result => {
+                if (result.success) {
+                    alert('Settings saved!');
+                } else {
+                    alert('Save failed: ' + result.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while saving. Please check the console.');
+            });
+        }
+
+        // Export Settings
+        function exportSettings() {
+            window.location.href = '/admin/settings/export';
+        }
+
+        // Trigger Import
+        function triggerImport() {
+            document.getElementById('importFile').click();
+        }
+
+        // Import Settings
+        function importSettings(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const settings = JSON.parse(e.target.result);
+                    
+                    fetch('/admin/settings/import', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(settings)
+                    })
+                    .then(response => response.json())
+                    .then(result => {
+                        if (result.success) {
+                            alert('Settings imported successfully. The page will reload...');
+                            location.reload();
+                        } else {
+                            alert('Import failed: ' + result.message);
+                            input.value = ''; // Reset input
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while importing. Please check the console.');
+                        input.value = ''; // Reset input
+                    });
+                } catch (err) {
+                    alert('Invalid file format. Please upload a valid JSON configuration file.');
+                    console.error(err);
+                    input.value = ''; // Reset input
+                }
+            };
+            reader.readAsText(file);
+        }
+    </script>
+</body>
+</html>

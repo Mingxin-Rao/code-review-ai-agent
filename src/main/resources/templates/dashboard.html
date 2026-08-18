@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - CodeGuardian AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/dashboard.css?v=2.0}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Left sidebar -->
+        <aside class="sidebar">
+            <div class="logo"><i class="fas fa-shield-alt"></i></div>
+            <ul class="sidebar-menu">
+                <li><a href="/dashboard" class="active" title="Dashboard"><i class="fas fa-chart-pie"></i></a></li>
+                <li th:if="${canReview or canQuery}"><a href="/review" title="Search"><i class="fas fa-search"></i></a></li>
+                <li th:if="${canQuery}"><a href="/review/reports" title="Tasks"><i class="fas fa-file-lines"></i></a></li>
+                <li th:if="${canAdmin}"><a href="/admin/users" title="Access Control"><i class="fas fa-user-shield"></i></a></li>
+                <li th:if="${canAdmin}"><a href="/admin/knowledge" title="Knowledge Base"><i class="fas fa-book"></i></a></li>
+                <li th:if="${canConfig}"><a href="/admin/settings" title="Settings"><i class="fas fa-cog"></i></a></li>
+            </ul>
+        </aside>
+
+        <!-- Main content area -->
+        <main class="main-content">
+            <!-- Top navigation bar -->
+            <header class="top-header">
+                <h1 class="page-title">Dashboard</h1>
+                <div class="user-section">
+                    <div class="user-info">
+                        <span class="user-label" th:text="${roleName ?: 'System Administrator'}">System Administrator</span>
+                        <span class="username" th:text="${username ?: 'ADMIN'}">ADMIN</span>
+                    </div>
+                    <div class="user-avatar" id="user-avatar" th:text="${avatarChar ?: 'A'}">A</div>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Log out
+                    </button>
+                </div>
+            </header>
+
+            <!-- Charts area -->
+            <div class="charts-container">
+                <!-- Chart 1: code health score -->
+                <div class="chart-card">
+                    <h2 class="chart-title">Code Health Score</h2>
+                    <div class="chart-wrapper">
+                        <canvas id="healthScoreChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart 2: issue distribution -->
+                <div class="chart-card">
+                    <h2 class="chart-title">Issue Distribution</h2>
+                    <div class="chart-wrapper">
+                        <canvas id="problemDistributionChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart 3: issues by project -->
+                <div class="chart-card full-width">
+                    <h2 class="chart-title">Issues by Project</h2>
+                    <div class="chart-wrapper">
+                        <canvas id="projectStatisticsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script th:inline="javascript">
+        window.dashboardConfig = {
+            chartHeight: /*[[${config.chartHeight}]]*/ 300,
+            ringThickness: /*[[${config.ringThickness}]]*/ 20
+        };
+        window.dashboardData = /*[[${dashboardData}]]*/ {
+            healthScore: 100,
+            problemDistribution: { critical: 0, high: 0, medium: 0, low: 0 },
+            projectStats: []
+        };
+    </script>
+    <script th:src="@{/js/http.js?v=2.0}"></script>
+    <script th:src="@{/js/dashboard.js?v=2.0}"></script>
+</body>
+</html>

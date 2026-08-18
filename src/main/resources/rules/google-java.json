@@ -1,0 +1,132 @@
+{
+  "name": "GOOGLE",
+  "description": "Google Java Style Guide - emphasises clarity, consistency and readability.",
+  "rules": [
+    {
+      "id": 1,
+      "name": "Column limit",
+      "description": "Java source lines are limited to 100 characters.",
+      "pattern": "^.{101,}$",
+      "severity": "LOW",
+      "weight": 30,
+      "suggestion": "Split long lines across multiple lines to improve readability."
+    },
+    {
+      "id": 2,
+      "name": "No wildcard imports",
+      "description": "Wildcard imports are not allowed, whether static or regular.",
+      "pattern": "import\\s+.*\\*;",
+      "severity": "MEDIUM",
+      "weight": 50,
+      "suggestion": "Import each required class explicitly to avoid name collisions and unclear dependencies."
+    },
+    {
+      "id": 3,
+      "name": "Overload grouping",
+      "description": "Overloaded methods should appear together, with no other methods between them.",
+      "pattern": "public\\s+\\w+\\s+(\\w+)\\([^)]*\\)[\\s\\S]*?public\\s+\\w+\\s+(?!\\1)\\w+\\([^)]*\\)[\\s\\S]*?public\\s+\\w+\\s+\\1\\([^)]*\\)",
+      "severity": "LOW",
+      "weight": 20,
+      "suggestion": "Keep overloaded methods adjacent for readability."
+    },
+    {
+      "id": 4,
+      "name": "Class naming convention",
+      "description": "Class names must use UpperCamelCase.",
+      "pattern": "class\\s+[a-z][a-zA-Z0-9]*",
+      "severity": "MEDIUM",
+      "weight": 60,
+      "suggestion": "Class names should follow UpperCamelCase, e.g. MyClass."
+    },
+    {
+      "id": 5,
+      "name": "Method naming convention",
+      "description": "Method names must use lowerCamelCase.",
+      "pattern": "public\\s+\\w+\\s+[A-Z][a-zA-Z0-9]*\\(",
+      "severity": "MEDIUM",
+      "weight": 60,
+      "suggestion": "Method names should follow lowerCamelCase, e.g. myMethod."
+    },
+    {
+      "id": 6,
+      "name": "Constant naming convention",
+      "description": "Constant names must be all upper case with underscores between words.",
+      "pattern": "static\\s+final\\s+[a-zA-Z0-9_]+\\s+[a-z][a-zA-Z0-9_]*\\s*=",
+      "severity": "MEDIUM",
+      "weight": 60,
+      "suggestion": "Constants should use CONSTANT_CASE, e.g. MAX_COUNT."
+    },
+    {
+      "id": 7,
+      "name": "Braces are required",
+      "description": "Braces are used with if, else, for, do and while, even for a single statement (K&R style).",
+      "pattern": "(if|else|for|while|do)\\s*\\([^)]*\\)\\s*[^\\{\\s]",
+      "severity": "MEDIUM",
+      "weight": 50,
+      "suggestion": "Always use braces, even for a single-line body."
+    },
+    {
+      "id": 8,
+      "name": "Array declaration style",
+      "description": "Array brackets belong with the type, not the variable name.",
+      "pattern": "\\w+\\s+\\w+\\[\\]",
+      "severity": "LOW",
+      "weight": 30,
+      "suggestion": "Prefer String[] args over String args[]."
+    },
+    {
+      "id": 9,
+      "name": "Switch Default",
+      "description": "A switch statement must include a default branch.",
+      "pattern": "switch\\s*\\([\\s\\S]*?\\)\\s*\\{(?![\\s\\S]*\\bdefault\\b)",
+      "severity": "MEDIUM",
+      "weight": 50,
+      "suggestion": "Include a default branch in the switch statement."
+    },
+    {
+      "id": 10,
+      "name": "Fall-through comment",
+      "description": "A switch case that falls through must be documented with a comment.",
+      "pattern": "case\\s+.*:[\\s\\S]*?(?<!break;|return;|throw.*;|continue;)\\s*case",
+      "severity": "LOW",
+      "weight": 40,
+      "suggestion": "Add an explicit '// fall through' comment, or use break."
+    },
+    {
+      "id": 11,
+      "name": "Modifier order",
+      "description": "Class and member modifiers should follow the order recommended by the Java Language Specification.",
+      "pattern": "(final\\s+public|static\\s+public|final\\s+private|static\\s+private|final\\s+protected|static\\s+protected)",
+      "severity": "LOW",
+      "weight": 20,
+      "suggestion": "Recommended order: public/protected/private abstract static final transient volatile synchronized native strictfp."
+    },
+    {
+      "id": 12,
+      "name": "Exception catching",
+      "description": "Do not catch the generic Exception type except at the top level.",
+      "pattern": "catch\\s*\\(\\s*Exception\\s+\\w+\\s*\\)",
+      "severity": "LOW",
+      "weight": 30,
+      "suggestion": "Catch specific exception types rather than the generic Exception."
+    },
+    {
+      "id": 13,
+      "name": "Empty catch block",
+      "description": "Do not leave a catch block empty.",
+      "pattern": "catch\\s*\\([^)]*\\)\\s*\\{\\s*\\}",
+      "severity": "MEDIUM",
+      "weight": 50,
+      "suggestion": "At minimum log the exception, or add a comment explaining why it is ignored."
+    },
+    {
+      "id": 14,
+      "name": "Avoid finalizers",
+      "description": "Do not override Object.finalize.",
+      "pattern": "void\\s+finalize\\(\\)",
+      "severity": "HIGH",
+      "weight": 80,
+      "suggestion": "Avoid finalize(); use try-with-resources or release resources explicitly."
+    }
+  ]
+}

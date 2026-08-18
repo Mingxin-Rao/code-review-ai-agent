@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Details - CodeGuardian AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <style>
+        .detail-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 30px;
+            border: 1px solid var(--border-color);
+        }
+        .detail-header {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+        .detail-title {
+            font-size: 24px;
+            color: var(--text-color);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .detail-meta {
+            display: flex;
+            gap: 20px;
+            color: var(--text-secondary-color);
+            font-size: 14px;
+        }
+        .meta-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .detail-content {
+            color: var(--text-color);
+            line-height: 1.8;
+            font-size: 16px;
+            white-space: pre-wrap;
+            background-color: var(--bg-color);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+        }
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            color: var(--text-secondary-color);
+            text-decoration: none;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .back-btn:hover {
+            color: var(--primary-color);
+        }
+        .action-bar {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .download-btn {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .download-btn:hover {
+            opacity: 0.9;
+        }
+        /* Fix scrolling for detail page */
+        .content-area {
+            overflow-y: auto !important;
+            padding-bottom: 60px !important;
+            display: block !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Left sidebar -->
+        <aside class="sidebar">
+            <div class="logo"><i class="fas fa-shield-alt"></i></div>
+            <ul class="sidebar-menu">
+                <li><a href="/dashboard" title="Dashboard"><i class="fas fa-chart-pie"></i></a></li>
+                <li th:if="${canReview or canQuery}"><a href="/review" title="Search"><i class="fas fa-search"></i></a></li>
+                <li th:if="${canQuery}"><a href="/review/reports" title="Tasks"><i class="fas fa-file-lines"></i></a></li>
+                <li th:if="${canAdmin}"><a href="/admin/users" title="Access Control"><i class="fas fa-user-shield"></i></a></li>
+                <li th:if="${canAdmin}"><a href="/admin/knowledge" class="active" title="Knowledge Base"><i class="fas fa-book"></i></a></li>
+                <li th:if="${canConfig}"><a href="/admin/settings" title="Settings"><i class="fas fa-cog"></i></a></li>
+            </ul>
+        </aside>
+
+        <!-- Main content area -->
+        <main class="main-content">
+            <!-- Top header bar -->
+            <header class="top-header">
+                <h1 class="page-title">Document Details</h1>
+                <div class="user-section">
+                    <div class="user-info">
+                        <span class="user-label" th:text="${roleName ?: 'System Administrator'}">System Administrator</span>
+                        <span class="username" th:text="${username ?: 'ADMIN'}">ADMIN</span>
+                    </div>
+                    <div class="user-avatar" id="user-avatar" th:text="${avatarChar ?: 'S'}">S</div>
+                    <!-- Simple log out button -->
+                    <a href="/logout" class="logout-btn" style="margin-left: 10px; text-decoration: none; color: #666;">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                </div>
+            </header>
+
+            <!-- Content wrapper -->
+            <div class="content-wrapper">
+                <div class="content-panel">
+                    <div class="content-area">
+                        <a href="/admin/knowledge" class="back-btn"><i class="fas fa-arrow-left"></i> Back to list</a>
+                        
+                        <div class="detail-card">
+                            <div class="detail-header">
+                                <h2 class="detail-title">
+                                    <i class="fas fa-file-pdf" style="color: #e74c3c;"></i>
+                                    <span th:text="${doc.title}">Document title</span>
+                                </h2>
+                                <div class="detail-meta">
+                                    <div class="meta-item">
+                                        <i class="fas fa-tag"></i>
+                                        <span th:text="${doc.category != null ? doc.category : 'Uncategorized'}">Category</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="fas fa-database"></i>
+                                        <span th:text="${doc.fileSize != null ? (doc.fileSize / 1024 + ' KB') : 'Unknown size'}">Size</span>
+                                    </div>
+                                    <div class="meta-item">
+                                        <i class="fas fa-fingerprint"></i>
+                                        <span th:text="${doc.id}">ID</span>
+                                    </div>
+                                    <div class="meta-item" th:if="${doc.minioObjectName}">
+                                        <i class="fas fa-cloud"></i>
+                                        <span>Stored in MinIO</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="detail-content" th:text="${doc.content}">
+                                Document content...
+                            </div>
+
+                            <div class="action-bar" th:if="${doc.minioObjectName}">
+                                <a th:href="@{/admin/knowledge/download/{id}(id=${doc.id})}" class="download-btn"><i class="fas fa-download"></i> Download / preview original file</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

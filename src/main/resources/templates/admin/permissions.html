@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Permissions - CodeGuardian AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Left sidebar -->
+        <aside class="sidebar">
+            <div class="logo"><i class="fas fa-shield-alt"></i></div>
+            <ul class="sidebar-menu">
+                <li><a href="/dashboard" title="Dashboard"><i class="fas fa-chart-pie"></i></a></li>
+                <li th:if="${canReview or canQuery}"><a href="/review" title="Search"><i class="fas fa-search"></i></a></li>
+                <li th:if="${canQuery}"><a href="/review/reports" title="Tasks"><i class="fas fa-file-lines"></i></a></li>
+                <li th:if="${canAdmin}"><a href="/admin/users" class="active" title="Access Control"><i class="fas fa-user-shield"></i></a></li>
+                <li th:if="${canAdmin}"><a href="/admin/knowledge" title="Knowledge Base"><i class="fas fa-book"></i></a></li>
+                <li th:if="${canConfig}"><a href="/admin/settings" title="Settings"><i class="fas fa-cog"></i></a></li>
+            </ul>
+        </aside>
+
+        <!-- Main content area -->
+        <main class="main-content">
+            <!-- Top header bar -->
+            <header class="top-header">
+                <h1 class="page-title">Access Control</h1>
+                <div class="user-section">
+                    <div class="user-info">
+                        <span class="user-label" th:text="${roleName ?: 'System Administrator'}">System Administrator</span>
+                        <span class="username" th:text="${username ?: 'ADMIN'}">ADMIN</span>
+                    </div>
+                    <div class="user-avatar" id="user-avatar" th:text="${avatarChar ?: 'S'}">S</div>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Log out
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content wrapper -->
+            <div class="content-wrapper">
+                <!-- Submenu panel -->
+                <aside class="submenu-panel">
+                    <nav class="submenu-nav">
+                        <a th:if="${canAdmin}" href="/admin/users" class="submenu-item">
+                            <i class="fas fa-users"></i>
+                            <span>User Management</span>
+                        </a>
+                        <a th:if="${canAdmin}" href="/admin/roles" class="submenu-item">
+                            <i class="fas fa-user-tag"></i>
+                            <span>Role Management</span>
+                        </a>
+                        <a th:if="${canConfig}" href="/admin/permissions" class="submenu-item active">
+                            <i class="fas fa-key"></i>
+                            <span>Permissions</span>
+                        </a>
+                    </nav>
+                </aside>
+
+                <!-- Content area -->
+                <div class="content-panel">
+                    <div class="content-area">
+                        <div class="content-window">
+                            <h2 class="content-title">Permissions</h2>
+                            <div id="permissionsContent" class="permissions-grid">
+                                <!-- Loaded dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script th:src="@{/js/http.js}"></script>
+    <script th:src="@{/js/admin.js}"></script>
+</body>
+</html>

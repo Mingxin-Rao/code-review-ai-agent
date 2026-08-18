@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report History - CodeGuardian AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/review.css}">
+    <link rel="stylesheet" th:href="@{/css/history.css}">
+</head>
+<body>
+    <div class="review-container">
+        <!-- Left sidebar -->
+        <aside class="sidebar">
+            <div class="logo"><i class="fas fa-shield-alt"></i></div>
+            <ul class="sidebar-menu">
+                <li><a href="/dashboard" title="Dashboard"><i class="fas fa-chart-pie"></i></a></li>
+                <li th:if="${canReview or canQuery}"><a href="/review" title="Search"><i class="fas fa-search"></i></a></li>
+                <li th:if="${canQuery}"><a href="/review/reports" class="active" title="Tasks"><i class="fas fa-file-lines"></i></a></li>
+                <li th:if="${canAdmin}"><a href="/admin/users" title="Access Control"><i class="fas fa-user-shield"></i></a></li>
+                <li th:if="${canAdmin}"><a href="/admin/knowledge" title="Knowledge Base"><i class="fas fa-book"></i></a></li>
+                <li th:if="${canConfig}"><a href="/admin/settings" title="Settings"><i class="fas fa-cog"></i></a></li>
+            </ul>
+        </aside>
+
+        <!-- Main content area -->
+        <main class="main-content">
+            <!-- Top header bar -->
+            <header class="top-header">
+                <h1 class="page-title">Report History</h1>
+                <div class="user-section">
+                    <div class="user-info">
+                        <span class="user-label" th:text="${roleName ?: 'System Administrator'}">System Administrator</span>
+                        <span class="username" th:text="${username ?: 'ADMIN'}">ADMIN</span>
+                    </div>
+                    <div class="user-avatar" th:text="${avatarChar ?: 'S'}">S</div>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Log out
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content area -->
+            <div class="content-area history-content">
+                <!-- Filter bar -->
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <label>Name (project / file / directory / snippet)</label>
+                        <input type="text" id="nameFilter" placeholder="Enter a name keyword" class="form-input">
+                    </div>
+                    <div class="filter-group">
+                        <label>Scope</label>
+                        <select id="scopeFilter" class="form-select">
+                            <option value="">All</option>
+                            <option value="PROJECT">Project</option>
+                            <option value="DIRECTORY">Directory</option>
+                            <option value="FILE">File</option>
+                            <option value="SNIPPET">Snippet</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Time range</label>
+                        <select id="timeRangeFilter" class="form-select">
+                            <option value="">All time</option>
+                            <option value="today">Today</option>
+                            <option value="week">This week</option>
+                            <option value="month">This month</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Start date</label>
+                        <input type="date" id="startDateFilter" class="form-input date-input">
+                    </div>
+                    <div class="filter-group">
+                        <label>End date</label>
+                        <input type="date" id="endDateFilter" class="form-input date-input">
+                    </div>
+                    <div class="filter-actions">
+                        <button class="btn-primary search-btn" onclick="searchHistory()">Search</button>
+                        <button class="btn-secondary reset-btn" onclick="resetFilters()">Reset</button>
+                    </div>
+                </div>
+
+                <!-- List area -->
+                <div class="history-table-container">
+                    <table class="history-table">
+                        <thead>
+                            <tr>
+                                <th width="60">#</th>
+                                <th>Name</th>
+                                <th width="120">Scope</th>
+                                <th width="180">Review Time</th>
+                                <th>Issue Summary</th>
+                                <th width="180">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTableBody">
+                            <!-- Data is loaded via JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination area -->
+                <div class="pagination-container">
+                    <span class="pagination-info" id="paginationInfo">0 records total, page 1/1</span>
+                    <div class="pagination-controls">
+                        <button class="btn-secondary prev-btn" onclick="prevPage()" disabled>Previous</button>
+                        <span class="current-page" id="pageDisplay">Page 1/1</span>
+                        <button class="btn-secondary next-btn" onclick="nextPage()" disabled>Next</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script th:src="@{/js/history.js}"></script>
+    <script th:inline="javascript">
+        // Inject backend permission variables into global JS variables
+        const canAdmin = /*[[${canAdmin}]]*/ false;
+
+        function logout() {
+            window.location.href = '/logout';
+        }
+    </script>
+</body>
+</html>

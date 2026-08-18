@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knowledge Bases - CodeGuardian AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Left sidebar -->
+        <aside class="sidebar">
+            <div class="logo"><i class="fas fa-shield-alt"></i></div>
+            <ul class="sidebar-menu">
+                <li><a href="/dashboard" title="Dashboard"><i class="fas fa-chart-pie"></i></a></li>
+                <li th:if="${canReview or canQuery}"><a href="/review" title="Search"><i class="fas fa-search"></i></a></li>
+                <li th:if="${canQuery}"><a href="/review/reports" title="Tasks"><i class="fas fa-file-lines"></i></a></li>
+                <li th:if="${canAdmin}"><a href="/admin/users" title="Access Control"><i class="fas fa-user-shield"></i></a></li>
+                <li th:if="${canAdmin}"><a href="/admin/knowledge" title="Knowledge Base"><i class="fas fa-book"></i></a></li>
+                <li th:if="${canConfig}"><a href="/admin/settings" title="Settings"><i class="fas fa-cog"></i></a></li>
+            </ul>
+        </aside>
+
+        <!-- Main content area -->
+        <main class="main-content">
+            <!-- Top header bar -->
+            <header class="top-header">
+                <h1 class="page-title">Knowledge Base</h1>
+                <div class="user-section">
+                    <div class="user-info">
+                        <span class="user-label" th:text="${roleName ?: 'System Administrator'}">System Administrator</span>
+                        <span class="username" th:text="${username ?: 'ADMIN'}">ADMIN</span>
+                    </div>
+                    <div class="user-avatar" id="user-avatar" th:text="${avatarChar ?: 'S'}">S</div>
+                    <!-- Simple log out button -->
+                    <a href="/logout" class="logout-btn" style="margin-left: 10px; text-decoration: none; color: #666;">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </a>
+                </div>
+            </header>
+
+            <!-- Content wrapper -->
+            <div class="content-wrapper">
+                <!-- Submenu panel -->
+                <aside class="submenu-panel">
+                    <nav class="submenu-nav">
+                        <a href="/admin/knowledge" class="submenu-item">
+                            <i class="fas fa-file-alt"></i>
+                            <span>Document Management</span>
+                        </a>
+                        <a href="/admin/knowledge/bases" class="submenu-item active">
+                            <i class="fas fa-database"></i>
+                            <span>Knowledge Bases</span>
+                        </a>
+                    </nav>
+                </aside>
+
+                <div class="content-panel">
+                    <div class="content-area">
+                        <div class="content-window">
+                            <div class="page-header">
+                                <h2 class="content-title">Knowledge Bases</h2>
+                            </div>
+
+                            <div class="table-container">
+                                <table class="user-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Knowledge Base Name</th>
+                                            <th>Description</th>
+                                            <th>Documents</th>
+                                            <th>Created</th>
+                                            <th>Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <i class="fas fa-server" style="color: #3498db; margin-right: 5px;"></i>
+                                                <span th:text="${kb.name}">Default Knowledge Base</span>
+                                            </td>
+                                            <td th:text="${kb.description}">System default vector knowledge base</td>
+                                            <td>
+                                                <span class="status-tag active" th:text="${kb.documentCount} + ' documents'">0</span>
+                                            </td>
+                                            <td th:text="${#temporals.format(kb.createTime, 'yyyy-MM-dd HH:mm')}">2023-01-01</td>
+                                            <td>
+                                                <span class="status-tag active">Enabled</span>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+</body>
+</html>

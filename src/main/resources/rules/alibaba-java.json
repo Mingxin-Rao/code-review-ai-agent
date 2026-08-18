@@ -1,0 +1,141 @@
+{
+  "name": "ALIBABA",
+  "description": "Alibaba Java Coding Guidelines - focuses on security, performance and code style.",
+  "rules": [
+    {
+      "id": 1,
+      "name": "SQL injection risk",
+      "description": "User input must never be concatenated into a SQL statement; use a precompiled PreparedStatement.",
+      "pattern": "\"(SELECT|INSERT|UPDATE|DELETE)[\\s\\S]*?\"\\s*\\+|=\\s*\".*\"\\s*\\+",
+      "severity": "CRITICAL",
+      "weight": 100,
+      "suggestion": "Bind parameters with a PreparedStatement '?' placeholder or MyBatis '#{}'."
+    },
+    {
+      "id": 2,
+      "name": "Hard-coded secrets",
+      "description": "Passwords, keys, tokens and other secrets must not be hard-coded in source.",
+      "pattern": "(password|pwd|secret|token|accessKey|secretKey)\\s*=\\s*\".+\"",
+      "severity": "CRITICAL",
+      "weight": 95,
+      "suggestion": "Move secrets into a config file or config service, and store them encrypted."
+    },
+    {
+      "id": 3,
+      "name": "No System.out logging",
+      "description": "System.out/err must not be used for logging in production; use a logging framework.",
+      "pattern": "System\\.(out|err)\\.print(ln)?",
+      "severity": "HIGH",
+      "weight": 80,
+      "suggestion": "Use a logging framework such as SLF4J, e.g. log.info()."
+    },
+    {
+      "id": 4,
+      "name": "No printStackTrace",
+      "description": "Exception handlers must not call printStackTrace(), which writes the stack trace to stderr.",
+      "pattern": "\\.printStackTrace\\(\\)",
+      "severity": "HIGH",
+      "weight": 80,
+      "suggestion": "Record the stack trace with log.error(\"message\", e)."
+    },
+    {
+      "id": 5,
+      "name": "Thread pool creation",
+      "description": "Do not create threads directly - use a thread pool. Do not build pools via Executors; use ThreadPoolExecutor.",
+      "pattern": "new\\s+Thread\\(|Executors\\.new(Fixed|Cached|Single)ThreadPool",
+      "severity": "HIGH",
+      "weight": 85,
+      "suggestion": "Construct a ThreadPoolExecutor explicitly, specifying core size, max size, queue and rejection policy."
+    },
+    {
+      "id": 6,
+      "name": "Class naming convention",
+      "description": "Class names must use UpperCamelCase.",
+      "pattern": "class\\s+[a-z][a-zA-Z0-9]*",
+      "severity": "MEDIUM",
+      "weight": 60,
+      "suggestion": "Class names should start with a capital letter, e.g. UserController."
+    },
+    {
+      "id": 7,
+      "name": "Constant naming convention",
+      "description": "Constant names must be all upper case with underscores between words.",
+      "pattern": "static\\s+final\\s+[a-zA-Z0-9_]+\\s+[a-z][a-zA-Z0-9_]*\\s*=",
+      "severity": "MEDIUM",
+      "weight": 60,
+      "suggestion": "Constants should be upper case with underscores, e.g. MAX_STOCK_COUNT."
+    },
+    {
+      "id": 8,
+      "name": "Package naming convention",
+      "description": "Package names must be lower case, with exactly one meaningful English word between dots.",
+      "pattern": "package\\s+[a-z0-9]+(\\.[a-z0-9]*[A-Z][a-z0-9]*)+;",
+      "severity": "MEDIUM",
+      "weight": 50,
+      "suggestion": "Package names should be all lower case, e.g. com.example.ai.util."
+    },
+    {
+      "id": 9,
+      "name": "No magic numbers",
+      "description": "Undefined magic values must not appear in the code.",
+      "pattern": "(==|!=|>|<|>=|<=)\\s*[0-9]{2,}",
+      "severity": "LOW",
+      "weight": 40,
+      "suggestion": "Extract the number into a named constant that carries its business meaning."
+    },
+    {
+      "id": 10,
+      "name": "Switch missing default",
+      "description": "A switch statement must include a default block.",
+      "pattern": "switch\\s*\\([\\s\\S]*?\\)\\s*\\{(?![\\s\\S]*\\bdefault\\b)",
+      "severity": "MEDIUM",
+      "weight": 50,
+      "suggestion": "Add a default branch to the switch to handle unexpected values."
+    },
+    {
+      "id": 11,
+      "name": "Long comparison",
+      "description": "Long values must be compared with equals(), never with ==.",
+      "pattern": "Long\\s+\\w+\\s*=[\\s\\S]*?;[\\s\\S]*?\\w+\\s*==\\s*\\w+",
+      "severity": "HIGH",
+      "weight": 70,
+      "suggestion": "Compare with Objects.equals() or Long.equals(); Long instances outside -128..127 are not cached."
+    },
+    {
+      "id": 12,
+      "name": "Avoid Apache BeanUtils",
+      "description": "Apache BeanUtils performs poorly and should be avoided.",
+      "pattern": "org\\.apache\\.commons\\.beanutils\\.BeanUtils",
+      "severity": "MEDIUM",
+      "weight": 50,
+      "suggestion": "Use Spring BeanUtils or Cglib BeanCopier instead."
+    },
+    {
+      "id": 13,
+      "name": "Transactional annotation usage",
+      "description": "@Transactional should only be applied to public methods.",
+      "pattern": "@Transactional[\\s\\S]*?(private|protected)\\s+",
+      "severity": "HIGH",
+      "weight": 80,
+      "suggestion": "Move @Transactional to a public method or the class, otherwise the transaction may not apply."
+    },
+    {
+      "id": 14,
+      "name": "Collection initialisation",
+      "description": "Specify an initial capacity when creating a collection where possible.",
+      "pattern": "new\\s+(HashMap|ArrayList|HashSet|Hashtable|Vector|WeakHashMap|LinkedHashMap|LinkedHashSet)\\(\\)",
+      "severity": "LOW",
+      "weight": 30,
+      "suggestion": "Give collections an initial capacity to avoid repeated resizing, e.g. new HashMap<>(16)."
+    },
+    {
+      "id": 15,
+      "name": "Floating-point comparison",
+      "description": "Floating-point equality must not use == for primitives, nor equals() for wrapper types.",
+      "pattern": "(float|double)\\s+\\w+\\s*=[\\s\\S]*?;[\\s\\S]*?\\w+\\s*==\\s*\\w+",
+      "severity": "HIGH",
+      "weight": 70,
+      "suggestion": "Use BigDecimal for exact arithmetic and comparison, or compare within an epsilon."
+    }
+  ]
+}

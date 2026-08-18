@@ -1,0 +1,20 @@
+*.classpath
+*.project
+*.iml
+*.factorypath
+target
+.idea/
+*.log
+docs
+logs
+*.DS_Store
+
+# Local scratch / debug output
+output_*.json
+
+# Database dumps may contain real user data - never commit
+*_full_dump.sql
+
+# Optional PDF font — drop a redistributable TTF here locally; do not commit
+# proprietary fonts (Arial Unicode MS and similar are not redistributable).
+src/main/resources/fonts/

@@ -1,0 +1,30 @@
+[
+  {
+    "id": "java-npe-001",
+    "title": "Avoid null pointer exceptions",
+    "category": "BUG",
+    "content": "An object is dereferenced without first checking whether it is null, which raises a NullPointerException.",
+    "solution": "Use Optional, or check for null explicitly before the call.\n\nExample:\n// Wrong\nreturn user.getName();\n\n// Right\nreturn Optional.ofNullable(user).map(User::getName).orElse(\"Unknown\");"
+  },
+  {
+    "id": "java-sql-injection-001",
+    "title": "SQL injection risk",
+    "category": "SECURITY",
+    "content": "Building a SQL query by concatenating strings leaves the code open to SQL injection.",
+    "solution": "Use a PreparedStatement, or the parameter binding provided by your ORM.\n\nExample:\n// Wrong\nString sql = \"SELECT * FROM users WHERE name = '\" + name + \"'\";\n\n// Right\nString sql = \"SELECT * FROM users WHERE name = ?\";"
+  },
+  {
+    "id": "java-resource-leak-001",
+    "title": "Unclosed resource causes a leak",
+    "category": "PERFORMANCE",
+    "content": "An IO stream, database connection or similar resource is opened but not closed when an exception occurs, leaking the resource.",
+    "solution": "Use try-with-resources so the resource is closed automatically.\n\nExample:\n// Right\ntry (FileInputStream fis = new FileInputStream(\"file.txt\")) {\n    // read the file\n}"
+  },
+  {
+    "id": "java-concurrent-hashmap-001",
+    "title": "Incorrect use of a concurrent collection",
+    "category": "BUG",
+    "content": "Using HashMap instead of ConcurrentHashMap in a multi-threaded context can cause an infinite loop or lost writes.",
+    "solution": "Use ConcurrentHashMap in multi-threaded code.\n\nExample:\nMap<String, String> map = new ConcurrentHashMap<>();"
+  }
+]

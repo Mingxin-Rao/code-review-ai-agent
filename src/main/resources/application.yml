@@ -1,0 +1,164 @@
+spring:
+  application:
+    name: code-review-ai-agent
+  
+  # Web configuration
+  web:
+    resources:
+      add-mappings: false  # Disable the default static resource mapping to avoid spurious 404s
+  
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+  # Thymeleaf configuration
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    encoding: UTF-8
+    cache: false  # Caching off for development
+    servlet:
+      content-type: text/html
+  
+  # Jackson configuration (Java 8 date/time support)
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false  # Serialise dates as ISO-8601 rather than timestamps
+    time-zone: UTC
+  # Datasource (PostgreSQL by default; override via environment variables)
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/code_guardian}
+    driver-class-name: org.postgresql.Driver
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:123456}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+  # JPA configuration
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          time_zone: UTC
+        use_sql_comments: true
+
+  # Spring AI configuration
+  ai:
+    enabled: false
+    embedding:
+      transformer:
+        enabled: false
+    # OpenAI
+    openai:
+      api-key: ${OPENAI_API_KEY:}
+      base-url: ${OPENAI_BASE_URL:https://api.openai.com}
+      embedding:
+        enabled: false # Disable OpenAI embedding to use Transformers
+      chat:
+        options:
+          model: ${OPENAI_MODEL:gpt-3.5-turbo}
+          temperature: 0.3
+          max-tokens: 4000
+    
+    # Transformers (local)
+    transformers:
+      embedding:
+        enabled: false
+        cache:
+          enabled: true
+          directory: ${user.home}/.cache/spring-ai/transformers
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:changeme}
+      database: ${REDIS_DATABASE:1}
+      timeout: 20000ms
+      lettuce:
+        pool:
+          max-active: 8
+          max-wait: -1ms
+          max-idle: 8
+          min-idle: 0
+app:
+  rag:
+    vectorize-on-startup: false
+    
+    # Ollama (for a local DeepSeek model)
+    ollama:
+      base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+      embedding:
+        enabled: false  # Ollama embeddings are off by default so a stopped Ollama does not break startup; OpenAI is preferred
+      chat:
+        options:
+          model: ${OLLAMA_MODEL:deepseek-r1:8b}
+          temperature: 0.3
+          num-predict: 4000
+      # Timeouts (local models need longer)
+      client:
+        connect-timeout: 300s
+        read-timeout: 300s
+
+    # Vector store
+    vectorstore:
+      pgvector:
+        index-type: HNSW
+        distance-type: COSINE_DISTANCE
+        dimensions: 384 # Transformers default (all-MiniLM-L6-v2)
+        initialize-schema: true
+
+    # Qwen (via its OpenAI-compatible endpoint)
+    qwen:
+      api-key: ${QWEN_API_KEY:}
+      base-url: ${QWEN_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode}
+      chat:
+        options:
+          model: ${QWEN_MODEL:qwen3-max}
+          temperature: 0.3
+          max-tokens: 4000
+
+# Sa-Token configuration
+sa-token: 
+  # Token name (also the cookie name)
+  token-name: satoken
+  # Token lifetime in seconds; default 30 days, -1 means never expires
+  timeout: 86400
+  # Allow concurrent logins for one account (false means a new login evicts the old one) 
+  is-concurrent: true
+  # Share one token across logins of the same account (false issues a new token per login) 
+  is-share: true
+  # Token style
+  token-style: uuid
+  # Whether to log Sa-Token operations 
+  is-log: false
+
+# MinIO configuration
+minio:
+  endpoint: ${MINIO_ENDPOINT:http://localhost:9002}
+  access-key: ${MINIO_ACCESS_KEY:minioadmin}
+  secret-key: ${MINIO_SECRET_KEY:minioadmin}
+  bucket-name: ${MINIO_BUCKET:code-review}
+# Server configuration
+server:
+  port: 7003
+  tomcat:
+    max-swallow-size: 100MB
+  servlet:
+    context-path: /
+gitcode:
+  api:
+    base-url: https://api.gitcode.com/api/v5
+  token: ${GITCODE_TOKEN:}
+djl:
+  cache:
+    dir: ${user.home}/.cache/djl

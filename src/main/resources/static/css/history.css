@@ -1,0 +1,266 @@
+/* Report history page styles */
+
+.history-content {
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    background-color: var(--bg-color);
+    overflow-y: auto;
+}
+
+/* Filter bar */
+.filter-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    align-items: flex-end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.filter-group label {
+    font-size: 14px;
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.filter-bar .form-input,
+.filter-bar .form-select {
+    padding: 8px 12px;
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    color: var(--text-color);
+    font-size: 14px;
+    min-width: 150px;
+    outline: none;
+}
+
+.filter-bar .form-input:focus,
+.filter-bar .form-select:focus {
+    border-color: var(--primary-color);
+}
+
+#nameFilter {
+    width: 300px;
+}
+
+.date-input::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}
+
+.filter-actions {
+    display: flex;
+    gap: 10px;
+    margin-left: auto; /* push to the right */
+}
+
+.search-btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.reset-btn {
+    background-color: var(--bg-color);
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 8px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.search-btn:hover {
+    opacity: 0.9;
+}
+
+.reset-btn:hover {
+    background-color: var(--hover-bg);
+}
+
+/* List area */
+.history-table-container {
+    flex: 1 0 auto;
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: auto;
+    margin-bottom: 20px;
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.history-table th,
+.history-table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-color);
+    font-size: 14px;
+}
+
+.history-table th {
+    background-color: var(--header-bg);
+    font-weight: 600;
+    color: var(--text-secondary-color);
+}
+
+.history-table tbody tr:hover {
+    background-color: var(--hover-bg);
+}
+
+/* Issue summary styles */
+.issue-stats {
+    display: flex;
+    gap: 10px;
+}
+
+.stat-item {
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.stat-critical { color: var(--severity-critical); }
+.stat-high { color: var(--severity-high); }
+.stat-medium { color: var(--severity-medium); }
+.stat-low { color: var(--severity-low); }
+
+/* Action buttons */
+.action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 4px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-size: 12px;
+    cursor: pointer;
+    text-decoration: none;
+    margin-right: 6px;
+    transition: all 0.2s;
+}
+
+.action-btn:hover {
+    background-color: var(--hover-bg);
+    border-color: var(--text-secondary-color);
+}
+
+.action-btn i {
+    font-size: 12px;
+}
+
+/* Pagination area */
+.pagination-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px;
+    color: var(--text-secondary-color);
+    font-size: 14px;
+}
+
+.pagination-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.pagination-controls button {
+    padding: 6px 12px;
+    border-radius: 4px;
+}
+
+.pagination-controls button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.current-page {
+    color: var(--text-color);
+}
+
+/* =========================================================
+   UI/UX polish layer — non-breaking enhancements
+   ========================================================= */
+::selection {
+    background: rgba(88, 166, 255, 0.35);
+    color: #fff;
+}
+
+a:focus-visible,
+button:focus-visible,
+select:focus-visible,
+input:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.4);
+    border-radius: 6px;
+}
+
+.search-btn,
+.reset-btn,
+.action-btn,
+.pagination-controls button {
+    transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.search-btn:not(:disabled):active,
+.reset-btn:not(:disabled):active,
+.action-btn:not(:disabled):active,
+.pagination-controls button:not(:disabled):active {
+    transform: translateY(1px);
+}
+
+/* Smooth row hover + zebra striping for readability */
+.history-table tbody tr {
+    transition: background-color 0.15s ease;
+}
+
+.history-table tbody tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+.history-table-container {
+    transition: border-color 0.2s ease;
+}
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border-color) transparent;
+}
+
+@media (max-width: 768px) {
+    .filter-bar {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .history-table-container {
+        overflow-x: auto;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
+    }
+}

@@ -1,0 +1,132 @@
+{
+  "name": "AIRBNB",
+  "description": "Airbnb JavaScript/TypeScript Style Guide - the most widely adopted JS/TS style guide.",
+  "rules": [
+    {
+      "id": 1,
+      "name": "Use const/let",
+      "description": "Declare variables with const or let; var is not allowed.",
+      "pattern": "\\bvar\\s+\\w+",
+      "severity": "HIGH",
+      "weight": 90,
+      "suggestion": "Use const for constants and let for variables; var causes hoisting problems."
+    },
+    {
+      "id": 2,
+      "name": "Prefer const",
+      "description": "Use const whenever the variable is never reassigned.",
+      "pattern": "\\blet\\s+(\\w+)\\s*=[^;]+;(?!.*\\1\\s*=)",
+      "severity": "MEDIUM",
+      "weight": 60,
+      "suggestion": "Prefer const unless the binding needs to be reassigned."
+    },
+    {
+      "id": 3,
+      "name": "Object literals",
+      "description": "Create objects with literal syntax.",
+      "pattern": "new\\s+Object\\(\\)",
+      "severity": "LOW",
+      "weight": 30,
+      "suggestion": "Create objects with the {} literal."
+    },
+    {
+      "id": 4,
+      "name": "Array literals",
+      "description": "Create arrays with literal syntax.",
+      "pattern": "new\\s+Array\\(\\)",
+      "severity": "LOW",
+      "weight": 30,
+      "suggestion": "Create arrays with the [] literal."
+    },
+    {
+      "id": 5,
+      "name": "Single quotes",
+      "description": "Use single quotes for strings.",
+      "pattern": "\"(?![^\"]*')[^\"]*\"",
+      "severity": "LOW",
+      "weight": 40,
+      "suggestion": "Use single quotes for strings, except where the string itself contains one."
+    },
+    {
+      "id": 6,
+      "name": "Template strings",
+      "description": "When building strings programmatically, use template literals instead of concatenation.",
+      "pattern": "'[^']*'\\s*\\+\\s*\\w+|\\w+\\s*\\+\\s*'[^']*'",
+      "severity": "MEDIUM",
+      "weight": 50,
+      "suggestion": "Use a template literal such as `${var}` instead of concatenation."
+    },
+    {
+      "id": 7,
+      "name": "Function expressions",
+      "description": "Prefer function expressions over function declarations.",
+      "pattern": "function\\s+\\w+\\(",
+      "severity": "LOW",
+      "weight": 20,
+      "suggestion": "Use a function expression or arrow function: const func = () => {}."
+    },
+    {
+      "id": 8,
+      "name": "Arrow functions",
+      "description": "Prefer arrow functions for callbacks.",
+      "pattern": "\\.map\\(function\\(|\\.forEach\\(function\\(|\\.filter\\(function\\(",
+      "severity": "MEDIUM",
+      "weight": 60,
+      "suggestion": "Use an arrow function for the callback so 'this' stays bound to the enclosing scope."
+    },
+    {
+      "id": 9,
+      "name": "Strict equality",
+      "description": "Use === and !== rather than == and !=.",
+      "pattern": "\\s==\\s|\\s!=\\s",
+      "severity": "HIGH",
+      "weight": 80,
+      "suggestion": "Use === and !== to avoid the pitfalls of implicit type coercion."
+    },
+    {
+      "id": 10,
+      "name": "Braces in switch cases",
+      "description": "A switch case that declares a variable must be wrapped in braces.",
+      "pattern": "case\\s+.*:\\s*(let|const|function|class)\\s+",
+      "severity": "MEDIUM",
+      "weight": 50,
+      "suggestion": "Wrap the case body in braces {} to create a lexical scope."
+    },
+    {
+      "id": 11,
+      "name": "Naming - camelCase",
+      "description": "Variables and functions use camelCase.",
+      "pattern": "(const|let|var)\\s+([A-Z][a-zA-Z0-9]*|_\\w+)\\s*=",
+      "severity": "MEDIUM",
+      "weight": 60,
+      "suggestion": "Use camelCase for variables and functions, UPPER_CASE for constants and PascalCase for classes."
+    },
+    {
+      "id": 12,
+      "name": "Naming - classes",
+      "description": "Class names use PascalCase.",
+      "pattern": "class\\s+[a-z][a-zA-Z0-9]*",
+      "severity": "MEDIUM",
+      "weight": 60,
+      "suggestion": "Class names should use PascalCase."
+    },
+    {
+      "id": 13,
+      "name": "Console usage",
+      "description": "Avoid console.log in production.",
+      "pattern": "console\\.log\\(",
+      "severity": "LOW",
+      "weight": 30,
+      "suggestion": "Remove console.log for production, or use a dedicated logging library."
+    },
+    {
+      "id": 14,
+      "name": "Semicolons",
+      "description": "Statements must be terminated with a semicolon.",
+      "pattern": "(const|let|var|return|throw|break|continue).*[^;{}]\\s*$",
+      "severity": "LOW",
+      "weight": 40,
+      "suggestion": "Add semicolons explicitly to avoid problems caused by automatic semicolon insertion (ASI)."
+    }
+  ]
+}

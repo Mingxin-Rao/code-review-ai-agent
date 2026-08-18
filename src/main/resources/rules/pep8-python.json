@@ -1,0 +1,114 @@
+{
+  "name": "PEP8",
+  "description": "PEP 8 -- Style Guide for Python Code, the official Python style guide.",
+  "rules": [
+    {
+      "id": 1,
+      "name": "Function naming",
+      "description": "Function names should use snake_case.",
+      "pattern": "def\\s+[A-Z][a-zA-Z0-9]*",
+      "severity": "MEDIUM",
+      "weight": 60,
+      "suggestion": "Use lower case with underscores for function names (snake_case)."
+    },
+    {
+      "id": 2,
+      "name": "Class naming",
+      "description": "Class names should use CapWords (PascalCase).",
+      "pattern": "class\\s+[a-z][a-zA-Z0-9_]*",
+      "severity": "MEDIUM",
+      "weight": 60,
+      "suggestion": "Use capitalised camel case for class names (CapWords)."
+    },
+    {
+      "id": 3,
+      "name": "Constant naming",
+      "description": "Constant names should be upper case, separated by underscores.",
+      "pattern": "^[A-Z][A-Z0-9_]*\\s*=\\s*",
+      "severity": "LOW",
+      "weight": 40,
+      "suggestion": "Constant names should be all upper case."
+    },
+    {
+      "id": 4,
+      "name": "Comparing to None",
+      "description": "Compare to None with 'is' or 'is not', not with ==.",
+      "pattern": "==\\s*None|!=\\s*None",
+      "severity": "HIGH",
+      "weight": 70,
+      "suggestion": "Use 'is None' or 'is not None'."
+    },
+    {
+      "id": 5,
+      "name": "Comparing to True/False",
+      "description": "Do not compare booleans directly.",
+      "pattern": "==\\s*True|==\\s*False",
+      "severity": "LOW",
+      "weight": 30,
+      "suggestion": "Use the condition directly, e.g. 'if x:' rather than 'if x == True:'."
+    },
+    {
+      "id": 6,
+      "name": "Wildcard imports",
+      "description": "Wildcard imports are not allowed.",
+      "pattern": "from\\s+\\w+\\s+import\\s+\\*",
+      "severity": "MEDIUM",
+      "weight": 50,
+      "suggestion": "Import the specific names you need to avoid polluting the namespace."
+    },
+    {
+      "id": 7,
+      "name": "Inline imports",
+      "description": "Import statements belong at the top of the file, not inside functions.",
+      "pattern": "\\s+import\\s+|\\s+from\\s+\\w+\\s+import",
+      "severity": "LOW",
+      "weight": 20,
+      "suggestion": "Move all import statements to the top of the file."
+    },
+    {
+      "id": 8,
+      "name": "Exception catching",
+      "description": "Do not use a bare except clause.",
+      "pattern": "except:",
+      "severity": "MEDIUM",
+      "weight": 60,
+      "suggestion": "Catch a specific exception, e.g. 'except ValueError:', or at least 'except Exception:'."
+    },
+    {
+      "id": 9,
+      "name": "Lambda expressions",
+      "description": "Do not assign a lambda to a variable; define a function with def instead.",
+      "pattern": "\\w+\\s*=\\s*lambda\\s+",
+      "severity": "LOW",
+      "weight": 30,
+      "suggestion": "Use 'def' to define a named function rather than assigning a lambda."
+    },
+    {
+      "id": 10,
+      "name": "Mutable Default Arguments",
+      "description": "Do not use a mutable object as a default argument value.",
+      "pattern": "def\\s+\\w+\\([^)]*=\\s*(\\[\\]|\\{\\}|set\\(\\))",
+      "severity": "HIGH",
+      "weight": 90,
+      "suggestion": "Use None as the default and create the mutable object inside the function."
+    },
+    {
+      "id": 11,
+      "name": "Single-line if/for/while",
+      "description": "Do not put the body of an if/for/while on the same line.",
+      "pattern": "(if|for|while)\\s+.*:\\s*\\w+",
+      "severity": "LOW",
+      "weight": 30,
+      "suggestion": "Put the block on its own indented line to improve readability."
+    },
+    {
+      "id": 12,
+      "name": "Print usage",
+      "description": "Avoid print in production code.",
+      "pattern": "print\\(",
+      "severity": "LOW",
+      "weight": 20,
+      "suggestion": "Use the logging module instead."
+    }
+  ]
+}

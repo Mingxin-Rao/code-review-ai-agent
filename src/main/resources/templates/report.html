@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Report - CodeGuardian AI</title>
+    <style>
+        html, body { height: 100%; margin: 0; background: #0d1117; }
+        .report-frame { width: 100%; height: 100%; border: 0; display: block; }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <iframe class="report-frame" th:src="@{'/api/report/' + ${taskId} + '/html'}" title="Review Report"></iframe>
+    <script>
+        // Fallback for when the iframe fails to load
+        (function(){
+            var f = document.querySelector('.report-frame');
+            f.addEventListener('error', function(){
+                alert('Failed to load the report. Please try again later.');
+            });
+        })();
+    </script>
+    
+</body>
+</html>
+

@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Review - CodeGuardian AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <link rel="stylesheet" th:href="@{/css/review.css?v=2.0}">
+</head>
+<body>
+    <div class="review-container">
+        <!-- Left sidebar -->
+        <aside class="sidebar">
+            <div class="logo"><i class="fas fa-shield-alt"></i></div>
+            <ul class="sidebar-menu">
+                <li><a href="/dashboard" title="Dashboard"><i class="fas fa-chart-pie"></i></a></li>
+                <li th:if="${canReview or canQuery}"><a href="/review" class="active" title="Search"><i class="fas fa-search"></i></a></li>
+                <li th:if="${canQuery}"><a href="/review/reports" title="Tasks"><i class="fas fa-file-lines"></i></a></li>
+                <li th:if="${canAdmin}"><a href="/admin/users" title="Access Control"><i class="fas fa-user-shield"></i></a></li>
+                <li th:if="${canAdmin}"><a href="/admin/knowledge" title="Knowledge Base"><i class="fas fa-book"></i></a></li>
+                <li th:if="${canConfig}"><a href="/admin/settings" title="Settings"><i class="fas fa-cog"></i></a></li>
+            </ul>
+        </aside>
+
+        <!-- Main content area -->
+        <main class="main-content">
+            <!-- Top header bar -->
+            <header class="top-header">
+                <h1 class="page-title">Code Review</h1>
+                <div class="user-section">
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Log out
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content area -->
+            <div class="content-area">
+                <!-- Center panel: code editor -->
+                <div class="editor-panel" id="editorPanel">
+                    <div class="editor-controls">
+                        <select class="code-type-select" id="codeTypeSelect">
+                            <option value="snippet">Code Snippet</option>
+                            <option value="file">Single File</option>
+                            <option value="directory">Directory</option>
+                            <option value="project">Whole Project</option>
+                            <option value="git">Git Repository</option>
+                        </select>
+                        <div class="rules-only-wrapper" style="display: flex; align-items: center; margin-left: 10px;">
+                            <input type="checkbox" id="rulesOnlyCheckbox" style="margin-right: 5px;" checked>
+                            <label for="rulesOnlyCheckbox" style="font-size: 14px; color: var(--text-color); cursor: pointer;">Rules-only review</label>
+                        </div>
+                        <select class="model-select" id="modelSelect" title="Select AI model" style="display: none;" th:if="${hasAvailableModelProviders}">
+                            <option th:each="provider : ${availableModelProviders}"
+                                    th:value="${provider.code}"
+                                    th:selected="${provider == defaultModelProvider}"
+                                    th:text="${provider.displayName}">
+                                Model
+                            </option>
+                        </select>
+                        <select class="template-select" id="templateSelect" title="Select ruleset" style="margin-left: 10px; padding: 8px 12px; border: 1px solid var(--border-color); border-radius: 6px; background-color: var(--bg-color); color: var(--text-color);">
+                            <option value="ALIBABA" selected>Alibaba Java Standard</option>
+                            <option value="GOOGLE">Google Java Standard</option>
+                            <option value="AIRBNB">Airbnb JS/TS Standard</option>
+                            <option value="PEP8">PEP8 Python Standard</option>
+                        </select>
+                        <div class="rag-enhancement-wrapper" id="ragEnhancementWrapper" style="display: none; align-items: center; margin-left: 10px;">
+                            <input type="checkbox" id="ragEnhancementCheckbox" style="margin-right: 5px;" checked>
+                            <label for="ragEnhancementCheckbox" style="font-size: 14px; color: var(--text-color); cursor: pointer;">RAG Enhancement</label>
+                        </div>
+                        <button class="start-review-btn" id="startReviewBtn" onclick="startReview()">
+                            <i class="fas fa-play"></i> Start review
+                        </button>
+                        <button class="configure-git-btn" id="configureGitBtn" onclick="showGitConfigModal()" style="display: none;">
+                            <i class="fas fa-cog"></i> Configure Git repository
+                        </button>
+                    </div>
+
+                    <!-- Code snippet editor -->
+                    <div class="code-editor-area" id="codeEditorArea">
+                        <p class="editor-hint">Type or paste your code in the editor on the left, then click "Start review".</p>
+                        <div class="code-editor-wrapper" style="position: relative;">
+                            <button class="sample-code-btn" onclick="loadSampleCode()" title="Load sample" style="position: absolute; right: 80px; top: 10px; z-index: 10; padding: 5px 10px; background-color: var(--secondary-color); color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                <i class="fas fa-bug"></i> Sample
+                            </button>
+                            <button class="clear-editor-btn" onclick="clearEditor()" title="Clear code">
+                                <i class="fas fa-times"></i> Clear
+                            </button>
+                            <div class="code-editor-container">
+                                <div class="line-numbers" id="lineNumbers"></div>
+                                <pre class="code-editor-pre"><code class="language-java code-editor" id="codeEditor" contenteditable="true" spellcheck="false"></code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- File selection area -->
+                    <div class="file-select-area" id="fileSelectArea" style="display: none;">
+                        <div class="drop-zone" id="fileDropZone">
+                            <p class="drop-hint">Drag a file here</p>
+                            <p class="drop-hint-secondary">or use the button below to choose a file</p>
+                            <div class="file-icon">
+                                <i class="fas fa-file-code"></i>
+                            </div>
+                            <div class="drop-zone-buttons">
+                                <button class="select-file-btn" onclick="selectFile()">
+                                    Choose file
+                                </button>
+                                <button class="clear-btn" onclick="clearFile()">
+                                    Clear
+                                </button>
+                            </div>
+                        </div>
+                        <span class="selection-status" id="fileStatus">No file selected</span>
+                        <input type="file" id="fileInput" style="display: none;" onchange="handleFileSelect(event)">
+                    </div>
+
+                    <!-- Directory selection area -->
+                    <div class="directory-select-area" id="directorySelectArea" style="display: none;">
+                        <div class="server-root-option" id="serverRootOption" style="display: none; width: 100%; flex-direction: column; align-items: center; margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px dashed var(--border-color);">
+                            <p style="margin-bottom: 10px; color: var(--text-color);">A server-side project root is already configured</p>
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                                <code id="serverRootPath" style="background: var(--bg-color); padding: 5px 10px; border-radius: 4px; border: 1px solid var(--border-color);"></code>
+                            </div>
+                            <button class="btn-primary" onclick="useServerRoot()" style="padding: 8px 16px; border-radius: 4px; cursor: pointer;">
+                                <i class="fas fa-server"></i> Review this directory
+                            </button>
+                            <p style="margin-top: 15px; font-size: 12px; color: var(--text-secondary-color);">Or upload local files:</p>
+                        </div>
+
+                        <div class="drop-zone" id="directoryDropZone">
+                            <p class="drop-hint" id="directoryHint">Drag a folder here</p>
+                            <p class="drop-hint-secondary" id="directoryHintSecondary">or use the button below to choose a folder</p>
+                            <div class="directory-icon">
+                                <i class="fas fa-folder"></i>
+                            </div>
+                            <div class="drop-zone-buttons">
+                                <button class="select-directory-btn" id="selectDirectoryBtn" onclick="selectDirectory()">
+                                    Choose folder
+                                </button>
+                                <button class="clear-btn" onclick="clearDirectory()">
+                                    Clear
+                                </button>
+                            </div>
+                        </div>
+                        <div class="directory-content-wrapper" id="directoryContentWrapper" style="display: none;">
+                            <!-- Left file tree -->
+                            <div class="file-tree-container" id="fileTreeContainer">
+                                <div class="file-tree-header">
+                                    <span class="file-tree-title" id="fileTreeTitle">File Tree</span>
+                                    <button class="clear-btn" onclick="clearDirectory()">
+                                        Clear
+                                    </button>
+                                </div>
+                                <div class="file-tree-content" id="fileTreeContent">
+                                    <!-- File tree is generated here dynamically -->
+                                </div>
+                                <!-- Right-edge resize area -->
+                                <div class="file-tree-resize-handle" id="fileTreeResizeHandle"></div>
+                            </div>
+                            <!-- Right code editor -->
+                            <div class="directory-code-editor-area" id="directoryCodeEditorArea">
+                                <div class="directory-editor-header">
+                                <span class="directory-editor-title" id="directoryEditorTitle">Code Preview</span>
+                                <span class="git-info-display" id="gitInfoDisplay"></span>
+                            </div>
+                                <div class="code-editor-wrapper">
+                                    <div class="code-editor-container">
+                                        <div class="line-numbers" id="directoryLineNumbers"></div>
+                                        <pre class="code-editor-pre"><code class="language-java code-editor" id="directoryCodeEditor" contenteditable="true" spellcheck="false"></code></pre>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <span class="selection-status" id="directoryStatus">Nothing selected</span>
+                        <!-- Download progress bar -->
+                        <div class="download-progress-container" id="downloadProgressContainer" style="display: none;">
+                            <div class="download-progress-bar">
+                                <div class="download-progress-fill" id="downloadProgressFill"></div>
+                            </div>
+                            <div class="download-progress-text" id="downloadProgressText">Downloading...</div>
+                        </div>
+                        <input type="file" id="directoryInput" webkitdirectory directory multiple style="display: none;" onchange="handleDirectorySelect(event)">
+                    </div>
+                </div>
+
+                <!-- Resize handle -->
+                <div class="editor-resize-handle" id="editorResizeHandle"></div>
+
+                <!-- Right panel: review results and issue details -->
+                <div class="results-panel" id="resultsPanel">
+                    <!-- Review results area -->
+                    <div class="results-section">
+                        <div class="results-header">
+                            <h2 class="results-title">Review Results</h2>
+                            <button class="generate-report-btn" id="generateReportBtn" onclick="generateReport()" disabled>
+                                <i class="fas fa-file-alt"></i> Generate report
+                            </button>
+                        </div>
+                        <div class="results-content" id="resultsContent">
+                            <!-- Empty by default; shows the issue list after review -->
+                        </div>
+                    </div>
+
+                    <!-- Issue details area -->
+                    <div class="details-section">
+                        <h2 class="details-title">Issue Details</h2>
+                        <p class="details-hint">Click an issue in the list above to view its details.</p>
+                        <div class="details-content" id="detailsContent">
+                            <!-- Issue details are loaded here dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Git configuration modal -->
+    <div class="modal-overlay" id="gitConfigModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Configure Git Repository</h2>
+                <button class="modal-close-btn" onclick="closeGitConfigModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Git repository URL <span style="color: var(--text-secondary-color); font-size: 12px;">(required)</span></label>
+                    <input type="text" class="form-input" id="gitUrlInput" placeholder="https://github.com/user/repo.git" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Username <span style="color: var(--text-secondary-color); font-size: 12px;">(optional, required for private repositories)</span></label>
+                    <input type="text" class="form-input" id="gitUsernameInput" placeholder="Not required for public repositories" />
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password / token <span style="color: var(--text-secondary-color); font-size: 12px;">(optional, required for private repositories)</span></label>
+                    <input type="password" class="form-input" id="gitPasswordInput" placeholder="Not required for public repositories" />
+                </div>
+                <div style="padding: 12px; background-color: var(--hover-bg); border-radius: 6px; margin-top: 16px;">
+                    <p style="margin: 0; font-size: 13px; color: var(--text-secondary-color); line-height: 1.5;">
+                        <i class="fas fa-info-circle" style="margin-right: 6px;"></i>
+                        <strong>Tip:</strong> For public open-source projects, you don't need a username or password&mdash;just enter the Git repository URL. Only private repositories or repositories that require authentication need a username and password/token.
+                    </p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeGitConfigModal()">Cancel</button>
+                <button class="btn-primary" onclick="saveGitConfig()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden configuration fields -->
+    <input type="hidden" id="projectRootConfig" th:value="${projectRoot}">
+    <input type="hidden" id="includePathsConfig" th:value="${includePaths}">
+    <input type="hidden" id="excludePathsConfig" th:value="${excludePaths}">
+    <input type="hidden" id="maxIssuesConfig" th:value="${maxIssues}">
+    <input type="hidden" id="ruleStandardConfig" th:value="${ruleStandard}">
+    <input type="hidden" id="hasAvailableModelProvidersConfig" th:value="${hasAvailableModelProviders}">
+    <input type="hidden" id="defaultModelProviderConfig" th:value="${defaultModelProvider}">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-clike.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    <script th:src="@{/js/http.js?v=2.0}"></script>
+    <script th:src="@{/js/review.js?v=2.2}"></script>
+</body>
+</html>

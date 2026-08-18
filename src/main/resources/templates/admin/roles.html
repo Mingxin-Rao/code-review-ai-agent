@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Role Management - CodeGuardian AI</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+<body>
+    <div class="admin-container">
+        <!-- Left sidebar -->
+        <aside class="sidebar">
+            <div class="logo"><i class="fas fa-shield-alt"></i></div>
+            <ul class="sidebar-menu">
+                <li><a href="/dashboard" title="Dashboard"><i class="fas fa-chart-pie"></i></a></li>
+                <li th:if="${canReview or canQuery}"><a href="/review" title="Search"><i class="fas fa-search"></i></a></li>
+                <li th:if="${canQuery}"><a href="/review/reports" title="Tasks"><i class="fas fa-file-lines"></i></a></li>
+                <li th:if="${canAdmin}"><a href="/admin/users" class="active" title="Access Control"><i class="fas fa-user-shield"></i></a></li>
+                <li th:if="${canAdmin}"><a href="/admin/knowledge" title="Knowledge Base"><i class="fas fa-book"></i></a></li>
+                <li th:if="${canConfig}"><a href="/admin/settings" title="Settings"><i class="fas fa-cog"></i></a></li>
+            </ul>
+        </aside>
+
+        <!-- Main content area -->
+        <main class="main-content">
+            <!-- Top header bar -->
+            <header class="top-header">
+                <h1 class="page-title">Access Control</h1>
+                <div class="user-section">
+                    <div class="user-info">
+                        <span class="user-label" th:text="${roleName ?: 'System Administrator'}">System Administrator</span>
+                        <span class="username" th:text="${username ?: 'ADMIN'}">ADMIN</span>
+                    </div>
+                    <div class="user-avatar" id="user-avatar" th:text="${avatarChar ?: 'S'}">S</div>
+                    <button class="logout-btn" onclick="logout()">
+                        <i class="fas fa-sign-out-alt"></i> Log out
+                    </button>
+                </div>
+            </header>
+
+            <!-- Content wrapper -->
+            <div class="content-wrapper">
+                <!-- Submenu panel -->
+                <aside class="submenu-panel">
+                    <nav class="submenu-nav">
+                        <a th:if="${canAdmin}" href="/admin/users" class="submenu-item">
+                            <i class="fas fa-users"></i>
+                            <span>User Management</span>
+                        </a>
+                        <a th:if="${canAdmin}" href="/admin/roles" class="submenu-item active">
+                            <i class="fas fa-user-tag"></i>
+                            <span>Role Management</span>
+                        </a>
+                        <a th:if="${canConfig}" href="/admin/permissions" class="submenu-item">
+                            <i class="fas fa-key"></i>
+                            <span>Permissions</span>
+                        </a>
+                    </nav>
+                </aside>
+
+                <!-- Content area -->
+                <div class="content-panel">
+                    <div class="content-area">
+                        <div class="content-window">
+                            <div class="roles-page-header">
+                                <h2 class="content-title">Role Management</h2>
+                                <button class="add-role-btn" onclick="showAddRoleModal()">
+                                    <i class="fas fa-plus"></i> Add role
+                                </button>
+                            </div>
+                            <div id="rolesContent" class="roles-grid">
+                                <!-- Loaded dynamically -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add / edit role modal -->
+    <div id="roleModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="roleModalTitle">Add Role</h2>
+                <button class="modal-close" onclick="closeRoleModal()">×</button>
+            </div>
+            <form id="roleForm" onsubmit="saveRole(event)">
+                <div class="modal-body">
+                    <input type="hidden" id="roleId">
+                    <div class="form-group">
+                        <label>Role code</label>
+                        <input type="text" id="roleCode" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Role name</label>
+                        <input type="text" id="roleName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Role description</label>
+                        <textarea id="roleDescription" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="roleStatus">
+                            <option value="0">Active</option>
+                            <option value="1">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeRoleModal()">Cancel</button>
+                    <button type="submit" class="btn-submit">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Assign permissions modal -->
+    <div id="permissionModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="permissionModalTitle">Assign Permissions</h2>
+                <button class="modal-close" onclick="closePermissionModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div id="permissionCheckboxes"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn-cancel" onclick="closePermissionModal()">Cancel</button>
+                <button type="button" class="btn-submit" onclick="savePermissions()">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/js/admin.js}"></script>
+</body>
+</html>
